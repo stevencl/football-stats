@@ -1,0 +1,116 @@
+<!doctype html>
+<html ng-app="playerTime">
+
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+
+	<script>
+		angular.module('playerTime', []).controller('PlayerListCtrl', ['$scope', '$interval', function($scope, $interval) {
+     		   $scope.players = [
+			 {name:'Amy', playing:false, gameTime:0.0},
+			 {name:'Ava', playing:false,gameTime:0.0},  
+			 {name:'Cara', playing:false,gameTime:0.0},  
+			 {name:'Chelsea', playing:false,gameTime:0.0},  
+			 {name:'Eilidh', playing:false,gameTime:0.0},  
+			 {name:'Gemima', playing:false,gameTime:0.0},  
+			 {name:'Isla', playing:false,gameTime:0.0},  
+			 {name:'Kimberley', playing:false,gameTime:0.0},  
+			 {name:'Lily', playing:false,gameTime:0.0},  
+			 {name:'Niamh', playing:false,gameTime:0.0},  
+			 {name:'Sophie', playing:false,gameTime:0.0}
+		   ];
+		   
+		   $scope.numPlayers = 11;
+		   
+		   $scope.durationFor = function (input) {
+			   function z(n) {return (n < 10 ? '0' : '') + n; }
+			   var seconds = input % 60;
+			   var minutes = Math.floor(input % 3600 / 60);
+			   return (z(minutes) + ':' + z(seconds) );
+		   }
+		   
+		   $scope.elapsedTime = 0;
+		   
+		   $scope.playerToAdd = '';
+		   
+		   $scope.paused = true;
+		   
+		   var stop;
+		   
+		   $scope.play = function() {
+			   if (angular.isDefined(stop) ) return;
+			   
+			   stop = $interval(function() {
+				   $scope.elapsedTime++;
+			   }, 1000);
+		   };
+		   
+		   $scope.pauseGame = function() {
+			   if (angular.isDefined(stop)) {
+				   $interval.cancel(stop);
+				   stop = undefined;
+			   }
+		   };
+		   
+		   $scope.resetGame = function() {
+			   if (angular.isDefined(stop)) {
+				   $interval.cancel(stop);
+				   stop = undefined;
+			   }
+			   $scope.elapsedTime = 0;
+		   }
+		   
+		   $scope.addPlayer = function() {
+			   if ($scope.playerToAdd != '') {
+				   $scope.numPlayers++;
+				   $scope.players.push({name:$scope.playerToAdd, playing:false, gameTime:0.0});
+			   }
+		   }
+		   
+		   $scope.$watch('elapsedTime', function(nv, ov){
+			
+			if (nv != "") {
+				var diff = parseInt(nv) - parseInt(ov);
+
+			   for (var i = 0, len = $scope.players.length; i < len; ++i){
+				  if ($scope.players[i].playing) {
+					  $scope.players[i].gameTime += diff;
+				  } 
+			   }
+		   }
+		   });
+		//    });
+   }]);
+	</script>
+	<style>
+		.player {
+			height: 35px;
+		}
+	</style>
+</head>
+
+<body ng-controller="PlayerListCtrl">
+	<input type="text" ng-model="elapsedTime">
+	</br>
+	<button ng-click="play()">Start</button>
+	</br>
+		</br>
+	<button ng-click="pauseGame()">Stop</button>
+	</br>
+		</br>
+	<button ng-click="resetGame()">Reset</button>
+	</br>
+		</br>
+
+	<div class="player" ng-repeat="player in players">
+		<input type="checkbox" ng-model="player.playing">
+		<label >{{player.name}}</label>
+		<label>{{durationFor(player.gameTime) }}</label>
+		
+	</div>
+	</br>
+	<input type="text" ng-model="playerToAdd">
+	<button ng-click="addPlayer()">Add player</button>
+</body>
+
+</html>
